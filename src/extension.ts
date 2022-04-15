@@ -12,14 +12,14 @@ interface requestParam {
 }
 
 function getConfig(projectPath: any) {
-  const configPath = `${projectPath}/.post-to-setver.json`;
+  const configPath = `${projectPath}/.post-to-server.json`;
   const configFile = fs.readFileSync(configPath, "utf8");
 
   let config = null;
   try {
     config = JSON.parse(configFile);
   } catch (err) {
-    vscode.window.showErrorMessage(".post-to-setver.json 文件读取失败");
+    vscode.window.showErrorMessage(".post-to-server.json 文件读取失败");
   }
   return config;
 }

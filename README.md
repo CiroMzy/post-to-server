@@ -4,7 +4,7 @@
 - This plug-in is used to call the interface when the file is changed, and transmit the currently edited file and file path to the server.
 
 ## usage
-  - 在本地添加配置文件 .post-to-setver.json
+  - 在本地添加配置文件 .post-to-server.json
   - 配置介绍：
 
 * `enable`: <boolean> 启用/关闭 本扩展。enable/disable this extension
@@ -16,7 +16,6 @@
 ```json
 {
   "open": true,
-  "uploadOnSave": true,
   "url": "https://abc.com",
   "headers": {
     "content-type": "application/json",
@@ -24,7 +23,7 @@
     "authorization": "123"
   },
   "ignore": [
-    ".gitignore", ".post-to-setver.json"
+    ".gitignore", ".post-to-server.json"
   ],
   "tipsOnSuccess": true
 }
