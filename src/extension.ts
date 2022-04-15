@@ -4,6 +4,7 @@ import axios from "axios";
 const fs = require("fs");
 import * as vscode from "vscode";
 
+let timer: any = null;
 interface requestParam {
   config?: any; // axios配置
   currentFile: any; // 当前文件内容
@@ -23,6 +24,14 @@ function getConfig(projectPath: any) {
   return config;
 }
 
+function isIgnoreFile(curFilePath: string, ignore: any) {
+  let fileName = "";
+  curFilePath.replace(/\/([^\/]+)$/, function ($0, $1): any {
+    fileName = $1;
+  });
+  return ignore.some((i: any) => i === fileName);
+}
+
 function request(params: requestParam) {
   const { config, currentFile, curFilePath } = params;
   axios({
@@ -37,9 +46,9 @@ function request(params: requestParam) {
     },
   })
     .then((res) => {
-			if (config.tipsOnSuccess) {
-				vscode.window.showInformationMessage("success");
-			}
+      if (config.tipsOnSuccess) {
+        vscode.window.showInformationMessage("success");
+      }
     })
     .catch((err) => {
       vscode.window.showErrorMessage(`请求失败 ${err}`);
@@ -49,29 +58,36 @@ function request(params: requestParam) {
 function triggerUpdate(watcherPath: any, config: any, projectPath: any) {
   const currentFile = fs.readFileSync(watcherPath, "utf8");
   const curFilePath = watcherPath?.replace(projectPath, "");
-  request({
-    config,
-    currentFile,
-    curFilePath,
-  });
+  if (isIgnoreFile(curFilePath, config.ignore)) {
+    return;
+  }
+
+  if (timer) {
+    clearTimeout(timer);
+  }
+  timer = setTimeout(() => {
+    request({
+      config,
+      currentFile,
+      curFilePath,
+    });
+  }, 500);
 }
 
-
 export function activate(context: vscode.ExtensionContext) {
-	
-	const projectPath = vscode.workspace.rootPath || "";
+  const projectPath = vscode.workspace.rootPath || "";
 
-	const config = getConfig(projectPath);
-	if (!config) return;
+  const config = getConfig(projectPath);
+  if (!config) return;
 
-	const watcher = vscode.workspace.createFileSystemWatcher("**/**");
+  const watcher = vscode.workspace.createFileSystemWatcher("**/**");
 
-	watcher.onDidChange((e) => {
-		triggerUpdate(e.path, config, projectPath);
-	});
-	watcher.onDidCreate((e) => {
-		triggerUpdate(e.path, config, projectPath);
-	});
+  watcher.onDidChange((e) => {
+    triggerUpdate(e.path, config, projectPath);
+  });
+  watcher.onDidCreate((e) => {
+    triggerUpdate(e.path, config, projectPath);
+  });
 }
 
 export function deactivate() {}
