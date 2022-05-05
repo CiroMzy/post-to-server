@@ -43,7 +43,7 @@ function request(params) {
   })
     .then((res) => {
       if (config.tipsOnSuccess) {
-        vscode.window.showInformationMessage("success");
+        vscode.window.showInformationMessage(`success ${config.url}`);
       }
     })
     .catch((err) => {
@@ -51,7 +51,8 @@ function request(params) {
     });
 }
 
-function triggerUpdate(watcherPath, config, projectPath) {
+function triggerUpdate(watcherPath, projectPath) {
+  const config = getConfig(projectPath);
   const currentFile = vscode.window.activeTextEditor.document.getText()
   const currentFullPath = vscode.window.activeTextEditor.document.fileName
 
@@ -83,10 +84,10 @@ export function activate(context) {
   const watcher = vscode.workspace.createFileSystemWatcher("**/**");
 
   watcher.onDidChange((e) => {
-    triggerUpdate(e.path, config, projectPath);
+    triggerUpdate(e.path, projectPath);
   });
   watcher.onDidCreate((e) => {
-    triggerUpdate(e.path, config, projectPath);
+    triggerUpdate(e.path, projectPath);
   });
 }
 

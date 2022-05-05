@@ -2,7 +2,7 @@
 	"name": "post-to-server",
 	"displayName": "post-to-server",
 	"description": "This plug-in is used to call the interface when the file is changed, and transmit the currently edited file and file path to the server.",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"publisher": "zhaoyangMa",
 	"repository": "https://github.com/CiroMzy/post-to-server",
 	"icon": "icon.png",
