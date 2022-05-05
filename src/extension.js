@@ -2,16 +2,12 @@
 // Import the module and reference it with the alias vscode in your code below
 import axios from "axios";
 const fs = require("fs");
+var path = require('path');
 import * as vscode from "vscode";
 
-let timer: any = null;
-interface requestParam {
-  config?: any; // axios配置
-  currentFile: any; // 当前文件内容
-  curFilePath: any; // 当前文件的相对路径
-}
+let timer= null;
 
-function getConfig(projectPath: any) {
+function getConfig(projectPath) {
   const configPath = `${projectPath}/.post-to-server.json`;
   const configFile = fs.readFileSync(configPath, "utf8");
 
@@ -24,15 +20,15 @@ function getConfig(projectPath: any) {
   return config;
 }
 
-function isIgnoreFile(curFilePath: string, ignore: any) {
+function isIgnoreFile(curFilePath, ignore) {
   let fileName = "";
-  curFilePath.replace(/\/([^\/]+)$/, function ($0, $1): any {
+  curFilePath.replace(/\/([^\/]+)$/, function ($0, $1) {
     fileName = $1;
   });
-  return ignore.some((i: any) => i === fileName);
+  return ignore.some((i) => i === fileName);
 }
 
-function request(params: requestParam) {
+function request(params) {
   const { config, currentFile, curFilePath } = params;
   axios({
     method: config.method || "post",
@@ -55,9 +51,13 @@ function request(params: requestParam) {
     });
 }
 
-function triggerUpdate(watcherPath: any, config: any, projectPath: any) {
-  const currentFile = fs.readFileSync(watcherPath, "utf8");
-  const curFilePath = watcherPath?.replace(projectPath, "");
+function triggerUpdate(watcherPath, config, projectPath) {
+  const currentFile = vscode.window.activeTextEditor.document.getText()
+  const currentFullPath = vscode.window.activeTextEditor.document.fileName
+
+  let curFilePath = currentFullPath?.replace(projectPath, "");
+  let normal = path.normalize(curFilePath)
+  curFilePath = normal.replace(/\\/g, '/')
   if (isIgnoreFile(curFilePath, config.ignore)) {
     return;
   }
@@ -74,7 +74,7 @@ function triggerUpdate(watcherPath: any, config: any, projectPath: any) {
   }, 500);
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context) {
   const projectPath = vscode.workspace.rootPath || "";
 
   const config = getConfig(projectPath);
